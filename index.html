@@ -464,6 +464,14 @@ footer { background: var(--dark); padding: 5rem 3.5rem 2.5rem; border-top: 1px s
 }
 
 </style>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Y69QYP56HZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-Y69QYP56HZ');
+</script>
 </head>
 <body>
 
@@ -976,23 +984,28 @@ footer { background: var(--dark); padding: 5rem 3.5rem 2.5rem; border-top: 1px s
   </div>
   <div class="con-r">
     <h3>Send Us a Message</h3>
-    <div class="form-row">
-      <div class="fg"><label>First Name</label><input type="text" placeholder="John"></div>
-      <div class="fg"><label>Last Name</label><input type="text" placeholder="Smith"></div>
-    </div>
-    <div class="fg"><label>Email Address</label><input type="email" placeholder="john@company.com"></div>
-    <div class="fg"><label>I&rsquo;m Interested In</label>
-      <select>
-        <option value="">Select a service...</option>
-        <option>Tenant Representation</option>
-        <option>Commercial Leasing</option>
-        <option>Investment Sale / Acquisition</option>
-        <option>Consulting</option>
-        <option>General Inquiry</option>
-      </select>
-    </div>
-    <div class="fg"><label>Message</label><textarea placeholder="Tell us about your CRE needs..."></textarea></div>
-    <button class="btn-blue" id="sbtn" style="width:100%;margin-top:.5rem;cursor:pointer;font-size:.78rem">Send Message &rarr;</button>
+    <form action="https://formspree.io/f/mvzderdz" method="POST" id="contact-form">
+      <div class="form-row">
+        <div class="fg"><label>First Name</label><input type="text" name="first_name" placeholder="John" required></div>
+        <div class="fg"><label>Last Name</label><input type="text" name="last_name" placeholder="Smith" required></div>
+      </div>
+      <div class="fg"><label>Email Address</label><input type="email" name="email" placeholder="john@company.com" required></div>
+      <div class="fg"><label>I&rsquo;m Interested In</label>
+        <select name="service">
+          <option value="">Select a service...</option>
+          <option>Tenant Representation</option>
+          <option>Commercial Leasing</option>
+          <option>Investment Sale / Acquisition</option>
+          <option>Consulting</option>
+          <option>General Inquiry</option>
+        </select>
+      </div>
+      <div class="fg"><label>Message</label><textarea name="message" placeholder="Tell us about your CRE needs..." required></textarea></div>
+      <button type="submit" class="btn-blue" id="sbtn" style="width:100%;margin-top:.5rem;cursor:pointer;font-size:.78rem">Send Message &rarr;</button>
+      <div id="form-success" style="display:none;margin-top:1.25rem;padding:1rem 1.25rem;background:rgba(120,196,236,.1);border:1px solid rgba(120,196,236,.3);font-family:var(--h);font-size:.8rem;font-weight:600;letter-spacing:.08em;color:var(--blue-dk);">
+        &#10003; Message sent! We&rsquo;ll be in touch shortly.
+      </div>
+    </form>
   </div>
 </section>
 
@@ -1080,13 +1093,33 @@ hamburger.addEventListener('click', function() {
 // Close on scroll
 window.addEventListener('scroll', function() { if (mobileMenu.classList.contains('open')) closeMenu(); }, { passive: true });
 
-var sb = document.getElementById('sbtn');
-if (sb) {
-  sb.addEventListener('click', function() {
-    this.textContent = 'Message Sent ✓';
-    this.style.background = 'var(--blue-dk)';
-    var s = this;
-    setTimeout(function() { s.textContent = 'Send Message →'; s.style.background = ''; }, 3000);
+var form = document.getElementById('contact-form');
+if (form) {
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var btn = document.getElementById('sbtn');
+    var success = document.getElementById('form-success');
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+    fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    }).then(function(r) {
+      if (r.ok) {
+        form.reset();
+        btn.style.display = 'none';
+        success.style.display = 'block';
+      } else {
+        btn.textContent = 'Send Message →';
+        btn.disabled = false;
+        alert('Something went wrong. Please email us directly at info@pantheoncre.com');
+      }
+    }).catch(function() {
+      btn.textContent = 'Send Message →';
+      btn.disabled = false;
+      alert('Something went wrong. Please email us directly at info@pantheoncre.com');
+    });
   });
 }
 </script>
